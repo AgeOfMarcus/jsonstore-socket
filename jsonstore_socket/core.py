@@ -1,11 +1,12 @@
 import json_store_client, base64
 
 class _Client(object):
-	def __init__(self, secret, sendk, recvk):
+	def __init__(self, secret, sendk, recvk, clear=True):
 		self.client = json_store_client.Client(
 			(secret*64)[:64])
 		self.sendk = sendk
 		self.recvk = recvk
+		if clear: self.clear()
 	def send(self, raw):
 		if not type(raw) == bytes:
 			raise ValueError("Expected bytes as argument")
@@ -21,6 +22,9 @@ class _Client(object):
 		d = base64.b64decode(res[0])
 		self.client.store(self.recvk, [])
 		return d
+	def clear(self):
+		self.client.store(self.sendk, [])
+		self.client.store(self.recvk, [])
 
 def Client(secret):
 	return _Client(secret, "recv", "send")
